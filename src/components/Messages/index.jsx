@@ -5,19 +5,11 @@ import Pusher from "pusher-js";
 import Message from "../Message";
 import "./index.css";
 
-const MessageList = ({ user }) => {
-  const [messages, setMessages] = useState([]);
-
+const MessageList = ({ user, messages, fetchMessage }) => {
+  // const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
 
   const ref = useRef(null);
-
-  const fetchMessage = async () => {
-    const { id } = JSON.parse(localStorage.getItem("user"));
-    const response = await get(`/message/${id}/${user.id}`);
-    setMessages(response.data);
-    scroll();
-  };
 
   const sendMessage = async () => {
     const { id } = JSON.parse(localStorage.getItem("user"));
@@ -28,6 +20,7 @@ const MessageList = ({ user }) => {
     };
     setMessage("");
     await post("/message", data);
+    fetchMessage(user);
     scroll();
   };
 
@@ -37,7 +30,6 @@ const MessageList = ({ user }) => {
   }
 
   useEffect(() => {
-    fetchMessage();
     scroll();
   }, [messages]);
 
@@ -50,12 +42,12 @@ const MessageList = ({ user }) => {
     const channel = pusher.subscribe("my-chat");
     channel.bind(`new-message-${id}-${user.id}`, async ({ message }) => {
       console.log("message from pusher", message);
-      fetchMessage();
+      fetchMessage(user);
     });
 
     channel.bind(`new-message-${user.id}-${id}`, async ({ message }) => {
       console.log("message from pusher", message);
-      fetchMessage();
+      fetchMessage(user);
     });
   }, []);
 
@@ -78,10 +70,7 @@ const MessageList = ({ user }) => {
             </div>
           </Layout.Header>
           <div className="message__content__avatar" ref={ref}>
-            {messages.length > 0 &&
-              messages.map((message, index) => (
-                <Message key={index} senderUser={user} message={message} />
-              ))}
+            <Message senderUser={user} messages={messages} />
           </div>
         </div>
       </div>
