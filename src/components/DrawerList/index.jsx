@@ -9,6 +9,8 @@ const DrawerList = ({ users }) => {
 
   const { Sider, Content } = Layout;
 
+  const [selectedUser, setSelectedUser] = useState(null);
+
   return (
     <Layout>
       <Sider
@@ -18,39 +20,42 @@ const DrawerList = ({ users }) => {
           overflow: "auto",
           height: "100vh",
         }}
-        >
-          <List
-            size="large"
-            header={<div>Contactos</div>}
-            bordered
-            dataSource={users}
-            renderItem={(item) => (
-              <List.Item
-                onClick={() => setShowMessages(true)}
-                style={{
-                  cursor: "pointer"
-                }}
-                >
-                  <List.Item.Meta
-                    avatar={
-                      <img
-                        width={30}
-                        style={{
-                          borderRadius: 50,
-                        }}
-                        src={item.profile_url}
-                        alt={item.name}
-                        />
-                    }
-                    title={<span>{item.name}</span>}
-                    />
-                </List.Item>
-            )}
-            />
-        </Sider>
-        <Layout>
-          <Content>{showMessages ? <MessageList /> : <EmptyChat />}</Content>
-        </Layout>
+      >
+        <List
+          size="large"
+          header={<div>Contactos</div>}
+          bordered
+          dataSource={users}
+          renderItem={(item) => (
+            <List.Item
+              onClick={() => {
+                setShowMessages(true);
+                setSelectedUser(item);
+              }}
+              style={{
+                cursor: "pointer",
+              }}
+            >
+              <List.Item.Meta
+                avatar={
+                  <img
+                    width={30}
+                    style={{
+                      borderRadius: 50,
+                    }}
+                    src={item.profile_url}
+                    alt={item.name}
+                  />
+                }
+                title={<span>{item.name}</span>}
+              />
+            </List.Item>
+          )}
+        />
+      </Sider>
+      <Layout>
+        <Content>{showMessages ? <MessageList user={selectedUser} /> : <EmptyChat />}</Content>
+      </Layout>
     </Layout>
   );
 };
